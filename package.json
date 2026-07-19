@@ -76,6 +76,9 @@
     "errorMsg": "Branch name structure: docs/contributor-onboarding or feature/my-change\nAllowed prefixes: feature, fix, refactor, hotfix, release, conflict, docs, chore, test"
   },
   "overrides": {
-    "webpack": "5.101.2"
+    "webpack": "5.101.2",
+    "lazystream": {
+      "readable-stream": "^2.3.8"
+    }
   }
 }

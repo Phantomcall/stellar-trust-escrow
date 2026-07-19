@@ -3,7 +3,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
-import { format as csvFormat } from 'fast-csv';
+import { format as csvFormat } from '@fast-csv/format';
 import ExcelJS from 'exceljs';
 
 import prisma from '../lib/prisma.js';
@@ -446,22 +446,21 @@ class ExportService {
     await finished;
   }
 
-  /** Write export rows to an XLSX file on disk using a streaming workbook. */
+  /** Write export rows to an XLSX file on disk. */
   async writeXlsxFile(filePath, where, onRow) {
     await fs.promises.mkdir(path.dirname(filePath), { recursive: true });
-    const workbook = new ExcelJS.stream.xlsx.WorkbookWriter({ filename: filePath });
+    const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet('Escrows');
     sheet.columns = EXPORT_COLUMNS.map((key) => ({ header: key, key }));
 
     await this.streamEscrows(where, async (batch) => {
       for (const escrow of batch) {
-        sheet.addRow(this.escrowToRow(escrow)).commit();
+        sheet.addRow(this.escrowToRow(escrow));
         if (onRow) await onRow();
       }
     });
 
-    sheet.commit();
-    await workbook.commit();
+    await workbook.xlsx.writeFile(filePath);
   }
 
   /** Absolute path of the generated file for a job. */
